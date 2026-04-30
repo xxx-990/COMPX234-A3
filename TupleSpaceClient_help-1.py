@@ -84,6 +84,15 @@ def main():
             # - Send:    sock.sendall(message.encode())
             # - Receive: first read 3 bytes to get the response size (like the server does).
             #            Then read the remaining (size - 3) bytes to get the response body.
+            sock.sendall(message.encode())  #发送信息给服务器
+            resp_len_bytes = sock.recv(3)
+            if not resp_len_bytes:  #服务端断开连接
+                print(f"{line}: ERR Server disconnected")
+                break
+            resp_len = int(resp_len_bytes.decode().strip())
+
+            response_buffer = sock.recv(resp_len - 3)
+            
 
 
             response = response_buffer.decode().strip()
