@@ -123,14 +123,29 @@ def handle_request(message):
         if op == "R":
             # TASK 3: READ — look up key in tuple_space.
             # Return "OK (<key>, <value>) read" or "ERR <key> does not exist".
-            increment_stat("read_count")
+            increment_stat("read_count")   #READ操作：查询键对应的值，不删除
+            if key in tuple_space:
+                value = tuple_space[key]
+                return f"OK (<key>, <value>) read"
+            else:
+                return f"ERR <key> does not exist"
+            
+
 
 
         elif op == "G":
             # TASK 4: GET — remove key from tuple_space and return its value.
             # Return "OK (<key>, <value>) removed" or "ERR <key> does not exist".
             # Hint: dict.pop(key, None) removes and returns the value, or None if missing.
-            increment_stat("get_count")
+            increment_stat("get_count")   #GET操作：查询并删除键值对
+            value = tuple_space.pop(key, None)
+            if value is not None:
+                return f"OK (<key>, <value>) removed"
+            else:
+                return f"ERR <key> does not exist"
+            
+          
+
 
 
         elif op == "P":
@@ -141,12 +156,17 @@ def handle_request(message):
             # TASK 5: PUT — add (key, value) only if key does not already exist.
             # Validate: len(value) <= 999 and len(key + " " + value) <= 970.
             # Return "OK (<key>, <value>) added" or "ERR <key> already exists".
-            increment_stat("put_count")
-
-
-        else:
-            increment_stat("error_count")
-            return "ERR Unknown operation"
+            increment_stat("put_count")   #PUT操作：添加键值对，仅当键不存在时添加
+            if key in tuple_space:
+                return f"ERR {key} already exists"
+            #校验值长度和总长度是否符合要求
+            if len(value) <= 999 and len(key + " " + value) <= 970:
+                tuple_space[key] = value
+                return f"OK (<key>, <value>) added"
+            
+            else:
+                increment_stat("error_count")
+                return "ERR Unknown operation"
 
 
 def main():
